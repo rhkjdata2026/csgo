@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>zecsgo算法</title>
+    <title>哈希算法</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
         :root {
@@ -43,7 +43,7 @@
 
         /* Header */
         .header {
-            padding: 48px 0 28px;
+            padding: 28px 0 28px;
             text-align: center;
         }
 
@@ -449,12 +449,12 @@
                     <path d="M9 12l2 2 4-4"/>
                 </svg>
             </div>
-            <h1>zecsgo算法</h1>
+            <h1>哈希算法</h1>
             <p>五因子 SHA-256 权重计算</p>
         </header>
 
         <section class="section">
-            <div class="section-title">参数配置</div>
+<!--            <div class="section-title">参数配置</div>-->
             <div class="form-group">
                 <div class="input-item">
                     <label for="secretHash">
@@ -507,10 +507,10 @@
                 <div class="input-item">
                     <label for="roundNum">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                        回合数
+                        随机数
                     </label>
                     <div class="input-wrap">
-                        <input id="roundNum" type="number" min="0" placeholder="请输入回合数" value="1">
+                        <input id="roundNum" type="number" min="0" placeholder="请输入随机数" value="1">
                         <button class="clear-btn" type="button" aria-label="清空">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                         </button>
@@ -642,11 +642,11 @@
             if (!secretSalt) return showToast('请填写秘钥盐值');
             if (!publicHash) return showToast('请填写公共哈希');
             if (!clientSeed) return showToast('请填写用户种子');
-            if (!roundNumRaw) return showToast('请填写回合数');
+            if (!roundNumRaw) return showToast('请填写随机数');
 
             const roundNum = Number(roundNumRaw);
             if (!Number.isFinite(roundNum) || roundNum < 0) {
-                return showToast('回合数须 ≥ 0');
+                return showToast('随机数须 ≥ 0');
             }
 
             const btn = document.getElementById('calcBtn');
