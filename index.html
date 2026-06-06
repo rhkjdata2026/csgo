@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>zecsgo算法</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        :root {
+            --accent: #007aff;
+            --accent-hover: #0066d6;
+            --bg: #f2f2f7;
+            --surface: #ffffff;
+            --text: #1c1c1e;
+            --text-2: #636366;
+            --text-3: #aeaeb2;
+            --separator: rgba(60, 60, 67, 0.12);
+            --input-bg: #f2f2f7;
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 0 20px 100px;
+        }
+
+        /* Header */
+        .header {
+            padding: 48px 0 28px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            background: linear-gradient(145deg, #007aff, #5856d6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.25);
+        }
+
+        .logo svg {
+            width: 28px;
+            height: 28px;
+            color: #fff;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header p {
+            margin-top: 6px;
+            font-size: 14px;
+            color: var(--text-2);
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        /* Form */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-item {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            border: 1.5px solid transparent;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-item:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        .input-item label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .input-item label svg {
+            width: 15px;
+            height: 15px;
+            color: var(--text-3);
+            flex-shrink: 0;
+        }
+
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-item input {
+            width: 100%;
+            height: 40px;
+            padding: 0 36px 0 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--input-bg);
+            font-size: 15px;
+            color: var(--text);
+            outline: none;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .input-item:focus-within input {
+            background: #eaeaef;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: var(--text-3);
+            color: #fff;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex-shrink: 0;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .clear-btn svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        .clear-btn:active {
+            transform: scale(0.9);
+            background: var(--text-2);
+        }
+
+        .input-wrap.has-value .clear-btn {
+            display: flex;
+        }
+
+        .input-item input::placeholder {
+            color: var(--text-3);
+        }
+
+        .input-item input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .input-item input[type="number"]::-webkit-inner-spin-button,
+        .input-item input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        /* Result */
+        .result-panel {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            min-height: 140px;
+        }
+
+        .result-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+            gap: 12px;
+        }
+
+        .result-placeholder-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--input-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-placeholder-icon svg {
+            width: 22px;
+            height: 22px;
+            color: var(--text-3);
+        }
+
+        .result-placeholder p {
+            font-size: 14px;
+            color: var(--text-3);
+        }
+
+        .result-body {
+            display: none;
+            padding: 24px 20px 20px;
+        }
+
+        .result-body.show {
+            display: block;
+            animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-hero {
+            text-align: center;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--separator);
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--input-bg);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 12px;
+        }
+
+        .result-number {
+            font-size: 52px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            color: var(--accent);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .result-caption {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--text-3);
+        }
+
+        .detail-item {
+            margin-bottom: 14px;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .detail-top span {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-2);
+        }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent);
+            background: rgba(0, 122, 255, 0.08);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .copy-btn svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        .copy-btn:active {
+            background: rgba(0, 122, 255, 0.16);
+        }
+
+        .detail-code {
+            font-size: 12px;
+            line-height: 1.65;
+            color: var(--text);
+            word-break: break-all;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            background: var(--input-bg);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        /* Fixed bottom button */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+            background: rgba(242, 242, 247, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--separator);
+        }
+
+        .action-inner {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 14px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            letter-spacing: -0.2px;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn .btn-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.65s linear infinite;
+        }
+
+        .submit-btn.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.92);
+            background: rgba(28, 28, 30, 0.88);
+            backdrop-filter: blur(12px);
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            display: none;
+            z-index: 1000;
+            max-width: 80%;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+        }
+
+        .toast.show {
+            display: block;
+            animation: popIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes popIn {
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header class="header">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M9 12l2 2 4-4"/>
+                </svg>
+            </div>
+            <h1>zecsgo算法</h1>
+            <p>五因子 SHA-256 权重计算</p>
+        </header>
+
+        <section class="section">
+            <div class="section-title">参数配置</div>
+            <div class="form-group">
+                <div class="input-item">
+                    <label for="secretHash">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        秘钥哈希
+                    </label>
+                    <div class="input-wrap">
+                        <input id="secretHash" type="text" placeholder="请输入秘钥哈希" autocomplete="off">
+                        <button class="clear-btn" type="button" aria-label="清空">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-item">
+                    <label for="secretSalt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                        秘钥盐值
+                    </label>
+                    <div class="input-wrap">
+                        <input id="secretSalt" type="text" placeholder="请输入秘钥盐值" autocomplete="off">
+                        <button class="clear-btn" type="button" aria-label="清空">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-item">
+                    <label for="publicHash">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                        公共哈希
+                    </label>
+                    <div class="input-wrap">
+                        <input id="publicHash" type="text" placeholder="请输入公共哈希" autocomplete="off">
+                        <button class="clear-btn" type="button" aria-label="清空">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-item">
+                    <label for="clientSeed">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                        用户种子
+                    </label>
+                    <div class="input-wrap">
+                        <input id="clientSeed" type="text" placeholder="请输入用户种子" autocomplete="off">
+                        <button class="clear-btn" type="button" aria-label="清空">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-item">
+                    <label for="roundNum">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        回合数
+                    </label>
+                    <div class="input-wrap">
+                        <input id="roundNum" type="number" min="0" placeholder="请输入回合数" value="1">
+                        <button class="clear-btn" type="button" aria-label="清空">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-title">计算结果</div>
+            <div class="result-panel">
+                <div class="result-placeholder" id="resultEmpty">
+                    <div class="result-placeholder-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9 7h6M9 12h6M9 17h4"/>
+                            <rect x="3" y="3" width="18" height="18" rx="3"/>
+                        </svg>
+                    </div>
+                    <p>输入参数后点击生成结果</p>
+                </div>
+                <div class="result-body" id="resultContent">
+                    <div class="result-hero">
+                        <div class="result-badge" id="weightRound">Round 1</div>
+                        <div class="result-number" id="weightValue">0</div>
+                        <div class="result-caption">权重值 · 范围 0 ~ 99999</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-top">
+                            <span>五因子原文</span>
+                            <button class="copy-btn" data-target="sourceText">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                                复制
+                            </button>
+                        </div>
+                        <div class="detail-code" id="sourceText"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-top">
+                            <span>SHA-256</span>
+                            <button class="copy-btn" data-target="hashText">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                                复制
+                            </button>
+                        </div>
+                        <div class="detail-code" id="hashText"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="action-bar">
+        <div class="action-inner">
+            <button class="submit-btn" id="calcBtn" type="button">
+                <span class="btn-content">
+                    <span class="spinner"></span>
+                    <span class="btn-text">生成结果</span>
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const WEIGHT_BOUND = 100000;
+
+        function nullToEmpty(val) {
+            return val == null ? '' : String(val);
+        }
+
+        function buildSource(userSeedCurrent, publicRandom, privateRandom, roundNo, pepper) {
+            return [
+                nullToEmpty(userSeedCurrent),
+                nullToEmpty(publicRandom),
+                nullToEmpty(privateRandom),
+                String(roundNo == null ? 0 : roundNo),
+                nullToEmpty(pepper)
+            ].join('|');
+        }
+
+        async function sha256Hex(source) {
+            const data = new TextEncoder().encode(source == null ? '' : source);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuffer))
+                .map(function (b) { return b.toString(16).padStart(2, '0'); })
+                .join('');
+        }
+
+        function weightValueFromHash(hash) {
+            const val = BigInt('0x' + hash.substring(0, 15));
+            return Number(val % BigInt(WEIGHT_BOUND));
+        }
+
+        async function weightValue(source) {
+            const hash = await sha256Hex(source);
+            return { hash: hash, weight: weightValueFromHash(hash) };
+        }
+
+        let toastTimer = null;
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showResult(roundNum, source, result) {
+            document.getElementById('resultEmpty').style.display = 'none';
+            document.getElementById('resultContent').classList.add('show');
+            document.getElementById('weightValue').textContent = result.weight;
+            document.getElementById('weightRound').textContent = 'Round ' + roundNum;
+            document.getElementById('sourceText').textContent = source;
+            document.getElementById('hashText').textContent = result.hash;
+        }
+
+        async function roll() {
+            const secretHash = document.getElementById('secretHash').value.trim();
+            const secretSalt = document.getElementById('secretSalt').value.trim();
+            const publicHash = document.getElementById('publicHash').value.trim();
+            const clientSeed = document.getElementById('clientSeed').value.trim();
+            const roundNumRaw = document.getElementById('roundNum').value.trim();
+
+            if (!secretHash) return showToast('请填写秘钥哈希');
+            if (!secretSalt) return showToast('请填写秘钥盐值');
+            if (!publicHash) return showToast('请填写公共哈希');
+            if (!clientSeed) return showToast('请填写用户种子');
+            if (!roundNumRaw) return showToast('请填写回合数');
+
+            const roundNum = Number(roundNumRaw);
+            if (!Number.isFinite(roundNum) || roundNum < 0) {
+                return showToast('回合数须 ≥ 0');
+            }
+
+            const btn = document.getElementById('calcBtn');
+            btn.disabled = true;
+            btn.classList.add('loading');
+            btn.querySelector('.btn-text').textContent = '计算中';
+
+            try {
+                const source = buildSource(clientSeed, publicHash, secretHash, roundNum, secretSalt);
+                const result = await weightValue(source);
+                showResult(roundNum, source, result);
+            } catch (e) {
+                showToast('计算失败');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btn.querySelector('.btn-text').textContent = '生成结果';
+            }
+        }
+
+        function updateClearBtn(wrap) {
+            const input = wrap.querySelector('input');
+            wrap.classList.toggle('has-value', input.value.trim() !== '');
+        }
+
+        document.querySelectorAll('.input-wrap').forEach(function (wrap) {
+            const input = wrap.querySelector('input');
+            const clearBtn = wrap.querySelector('.clear-btn');
+
+            updateClearBtn(wrap);
+
+            input.addEventListener('input', function () {
+                updateClearBtn(wrap);
+            });
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') roll();
+            });
+
+            clearBtn.addEventListener('click', function () {
+                input.value = '';
+                updateClearBtn(wrap);
+                input.focus();
+            });
+        });
+
+        document.getElementById('calcBtn').addEventListener('click', roll);
+        document.querySelectorAll('.copy-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const text = document.getElementById(btn.dataset.target).textContent;
+                if (!text) return;
+                navigator.clipboard.writeText(text)
+                    .then(function () { showToast('已复制'); })
+                    .catch(function () { showToast('复制失败'); });
+            });
+        });
+    </script>
+</body>
+
+</html>
