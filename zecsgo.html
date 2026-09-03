@@ -535,7 +535,7 @@
                     <div class="result-hero">
                         <div class="result-badge" id="weightRound">Round 1</div>
                         <div class="result-number" id="weightValue">0</div>
-                        <div class="result-caption">权重值 · 范围 1 ~ 100000</div>
+                        <div class="result-caption">权重值 · 范围 0 ~ 99999</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-top">
@@ -602,7 +602,7 @@
 
         function weightValueFromHash(hash) {
             const val = BigInt('0x' + hash.substring(0, 15));
-            return Number(val % BigInt(WEIGHT_BOUND)) + 1;
+            return Number(val % BigInt(WEIGHT_BOUND));
         }
 
         async function weightValue(source) {
