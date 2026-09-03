@@ -602,7 +602,7 @@
 
         function weightValueFromHash(hash) {
             const val = BigInt('0x' + hash.substring(0, 15));
-            return Number(val % BigInt(WEIGHT_BOUND));
+            return Number(val % BigInt(WEIGHT_BOUND)) + 1;
         }
 
         async function weightValue(source) {
